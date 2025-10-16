@@ -7,7 +7,10 @@ import com.pathshala.payload.response.ProductResponseDto;
 import com.pathshala.repository.ProductRepository;
 import com.pathshala.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,6 +61,11 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
         }
 
+    @Override
+    public Page<Product> getAllProductWithPagination(int offset, int limit) {
+        return productRepository.findAll(PageRequest.of(offset, limit));
+    }
+
 
     @Override
     public List<ProductResponseDto> getAllProductsByCategory(String category) {
@@ -73,5 +81,16 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id) );
         productRepository.delete(product);
         return "Product deleted successfully!";
+    }
+
+    @Override
+    public List<Product> getAllProductsWithNameSort(String fieldName) {
+        return productRepository.findAll(Sort.by(Sort.Direction.ASC, fieldName));
+    }
+
+    @Override
+    public Page<Product> getAllProductsWithPaginationAndSort(int offset, int limit, String fieldName) {
+        return productRepository.findAll(PageRequest.of(offset, limit)
+                .withSort(Sort.by(Sort.Direction.ASC, fieldName)));
     }
 }
